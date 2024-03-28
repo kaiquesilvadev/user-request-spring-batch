@@ -7,7 +7,7 @@ MySQL 8.0 e phpMyAdmin
 
 Script:
 
-https://gist.github.com/oliveiralex/fe234f71d7e594ea83566cfb2625c180
+https://github.com/kaiquesilvadev/user-request-spring-batch/blob/main/docker-compose.yml
 
 Subir a estrutura:
 
