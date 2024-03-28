@@ -1,9 +1,9 @@
 # Read data from remote API and save data to DB using Spring Batch
 > Estudo de caso para implementar um job para ler dados de uma API remota e salvar no banco de dados usando Spring Batch
 
-## Estudo de caso Docker Compose
+## Docker Compose
 
-Estudo de caso: MySQL 8.0 e phpMyAdmin
+MySQL 8.0 e phpMyAdmin
 
 Script:
 
