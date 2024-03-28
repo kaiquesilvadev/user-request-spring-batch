@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import com.kaique.userrequestspringbatch.dto.UserDTO;
+import com.kaique.userrequestspringbatch.entities.User;
 
 @Configuration
 public class FetchUserDataAndStoreDBStepConfig {
@@ -27,10 +28,10 @@ public class FetchUserDataAndStoreDBStepConfig {
 
 	@Bean
 	public Step fetchUserDataAndStoreDBStep(ItemReader<UserDTO> fetchUserDataReader,
-			ItemProcessor<UserDTO, UserDTO> selectFieldsUserDataProcessor, ItemWriter<User> insertUserDataDBWriter,
+			ItemProcessor<UserDTO, User> selectFieldsUserDataProcessor, ItemWriter<User> insertUserDataDBWriter,
 			JobRepository jobRepository) {		
 		return new StepBuilder("fetchUserDataAndStoreDBStep", jobRepository)
-				.<UserDTO, UserDTO>chunk(chunkSize, transactionManager)
+				.<UserDTO, User>chunk(chunkSize, transactionManager)
 				.reader(fetchUserDataReader)
 				.processor(selectFieldsUserDataProcessor)
 				.writer(insertUserDataDBWriter)

@@ -19,6 +19,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
+import com.kaique.userrequestspringbatch.domain.ResponseUser;
 import com.kaique.userrequestspringbatch.dto.UserDTO;
 
 @Configuration
@@ -29,16 +30,63 @@ public class FetchUserDataReaderConfig implements ItemReader<UserDTO> {
 	private final String BASE_URL = "http://localhost:8081";
 	private RestTemplate restTemplate = new RestTemplate();
 
+	private int page = 0;
+	private List<UserDTO> users = new ArrayList<>();
+	private int userIndex = 0;
+
+	@Value("${chunkSize}")
+	private int chunkSize;
+
+	@Value("${pageSize}")
+	private int pageSize;
 
 	@Override
 	public UserDTO read() throws Exception, UnexpectedInputException, ParseException, NonTransientResourceException {
+		UserDTO user;
+		if (userIndex < users.size())
+			user = users.get(userIndex);
+		else
+			user = null;
+
+		userIndex++;
+		return user;
 	}
 
 	private List<UserDTO> fetchUserDataFromAPI() {
 
 		String uri = BASE_URL + "/clients/pagedData?page=%d&size=%d";
 		
-	
+		logger.info("[READER STEP] Fetching data ... ");
+		logger.info("[READER STEP] Request uri: " + String.format(uri, getPage(), pageSize));
+		
+		ResponseEntity<ResponseUser> response = restTemplate.exchange(String.format(uri, getPage(), pageSize), HttpMethod.GET, null,
+				new ParameterizedTypeReference<ResponseUser>() {
+				});
+
+		List<UserDTO> result = response.getBody().getContent();
+		return result;
 	}
 	
+	public void incrementPage() {
+		this.page++;
+	}
+	
+	public int getPage() {
+		return page;
+	}
+
+	@BeforeChunk
+	public void beforeChunck(ChunkContext context) {
+		for (int i = 0; i < chunkSize; i += pageSize) {
+			users.addAll(fetchUserDataFromAPI());
+		}
+	}
+
+	@AfterChunk
+	public void afterChunck(ChunkContext context) {
+		logger.info("Fim do chunck");
+		incrementPage();
+		userIndex = 0;
+		users = new ArrayList<>();
+	}
 }
